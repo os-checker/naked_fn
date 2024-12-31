@@ -1,0 +1,23 @@
+name: Check & Build CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        rust-toolchain: [nightly, nightly-2024-12-12, nightly-2024-12-13]
+        targets: [riscv64gc-unknown-none-elf]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@nightly
+      with:
+        toolchain: ${{ matrix.rust-toolchain }}
+        components: rust-src, clippy, rustfmt
+        targets: ${{ matrix.targets }}
+    - name: Check
+      run: cargo check --target ${{ matrix.targets }} 
+    - name: Build
+      run: cargo build --target ${{ matrix.targets }} 
